@@ -69,7 +69,7 @@ jobs:
   #         only-new-issues: true
           
   go-lint:
-    name: Go Linter (PR Changes Only)
+    name: Go Linter (PR Changs Only)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -78,25 +78,16 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: stable  
+          go-version: stable  # Ensure it matches go.mod
 
       - name: Verify Go Version
         run: go version
 
-      - name: Clean Go Cache
+      - name: Remove Stale GolangCI-Lint Files
         run: |
-          go clean -modcache
+          rm -rf ~/.cache/golangci-lint
           rm -rf ~/go/pkg/mod
-
-      - name: Cache Go Modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+          rm -rf /usr/local/bin/golangci-lint
 
       - name: Install Go Dependencies
         run: |
@@ -106,10 +97,9 @@ jobs:
       - name: Run GolangCI-Lint
         uses: golangci/golangci-lint-action@v4
         with:
-          version: v1.55.2  
+          version: v1.55.2
           only-new-issues: true
           args: --timeout=5m
-
 
   terraform-security:
     name: Terraform Security Scan
